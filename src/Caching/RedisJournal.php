@@ -21,9 +21,13 @@ final class RedisJournal implements Journal
 	/** @var ClientInterface $client */
 	private $client;
 
-	public function __construct(ClientInterface $client)
+	/** @var bool */
+	private $cluster;
+
+	public function __construct(ClientInterface $client, bool $cluster = false)
 	{
 		$this->client = $client;
+		$this->cluster = $cluster;
 	}
 
 	/**
@@ -37,7 +41,7 @@ final class RedisJournal implements Journal
 	{
 		$this->cleanEntry($key);
 
-		//$this->client->multi();
+		if (!$this->cluster) $this->client->multi();
 
 		// add entry to each tag & tag to entry
 		$tags = empty($dependencies[Cache::TAGS]) ? [] : (array) $dependencies[Cache::TAGS];
@@ -50,7 +54,7 @@ final class RedisJournal implements Journal
 			$this->client->zadd($this->formatKey(self::KEY_PRIORITY), [$key => $dependencies[Cache::PRIORITY]]);
 		}
 
-		//$this->client->exec();
+		if (!$this->cluster) $this->client->exec();
 	}
 
 	/**
@@ -63,7 +67,7 @@ final class RedisJournal implements Journal
 		foreach (is_array($keys) ? $keys : [$keys] as $key) {
 			$entries = $this->entryTags($key);
 
-			//$this->client->multi();
+			if (!$this->cluster) $this->client->multi();
 			foreach ($entries as $tag) {
 				$this->client->srem($this->formatKey($tag, self::SUFFIX_KEYS), $key);
 			}
@@ -72,7 +76,7 @@ final class RedisJournal implements Journal
 			$this->client->del($this->formatKey($key, self::SUFFIX_TAGS));
 			$this->client->zrem($this->formatKey(self::KEY_PRIORITY), $key);
 
-			//$this->client->exec();
+			if (!$this->cluster) $this->client->exec();
 		}
 	}
 
@@ -87,9 +91,9 @@ final class RedisJournal implements Journal
 		if (!empty($conditions[Cache::ALL])) {
 			$all = $this->client->keys(self::NS_PREFIX . ':*');
 
-			//$this->client->multi();
+			if (!$this->cluster) $this->client->multi();
 			call_user_func_array([$this->client, 'del'], $all);
-			//$this->client->exec();
+			if (!$this->cluster) $this->client->exec();
 			return null;
 		}
 

@@ -41,6 +41,7 @@ final class RedisExtension extends CompilerExtension
 					Expect::bool(),
 					Expect::array()
 				)->default(false),
+				'cluster' => Expect::bool(false),
 			])),
 			'clientFactory' => Expect::string(Client::class),
 		]);
@@ -109,6 +110,7 @@ final class RedisExtension extends CompilerExtension
 				->setFactory(RedisJournal::class)
 				->setArguments([
 					'client' => $builder->getDefinition($this->prefix('connection.' . $name . '.client')),
+					'cluster' => $connection->cluster,
 				])
 				->setAutowired(false);
 
