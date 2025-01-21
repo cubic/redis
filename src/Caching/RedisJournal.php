@@ -50,7 +50,7 @@ final class RedisJournal implements Journal
 			$this->client->zadd($this->formatKey(self::KEY_PRIORITY), [$key => $dependencies[Cache::PRIORITY]]);
 		}
 
-		$this->client->exec();
+		//$this->client->exec();
 	}
 
 	/**
@@ -72,7 +72,7 @@ final class RedisJournal implements Journal
 			$this->client->del($this->formatKey($key, self::SUFFIX_TAGS));
 			$this->client->zrem($this->formatKey(self::KEY_PRIORITY), $key);
 
-			$this->client->exec();
+			//$this->client->exec();
 		}
 	}
 
@@ -89,7 +89,7 @@ final class RedisJournal implements Journal
 
 			//$this->client->multi();
 			call_user_func_array([$this->client, 'del'], $all);
-			$this->client->exec();
+			//$this->client->exec();
 			return null;
 		}
 
