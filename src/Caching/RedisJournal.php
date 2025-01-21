@@ -37,7 +37,7 @@ final class RedisJournal implements Journal
 	{
 		$this->cleanEntry($key);
 
-		$this->client->multi();
+		//$this->client->multi();
 
 		// add entry to each tag & tag to entry
 		$tags = empty($dependencies[Cache::TAGS]) ? [] : (array) $dependencies[Cache::TAGS];
@@ -63,7 +63,7 @@ final class RedisJournal implements Journal
 		foreach (is_array($keys) ? $keys : [$keys] as $key) {
 			$entries = $this->entryTags($key);
 
-			$this->client->multi();
+			//$this->client->multi();
 			foreach ($entries as $tag) {
 				$this->client->srem($this->formatKey($tag, self::SUFFIX_KEYS), $key);
 			}
@@ -87,7 +87,7 @@ final class RedisJournal implements Journal
 		if (!empty($conditions[Cache::ALL])) {
 			$all = $this->client->keys(self::NS_PREFIX . ':*');
 
-			$this->client->multi();
+			//$this->client->multi();
 			call_user_func_array([$this->client, 'del'], $all);
 			$this->client->exec();
 			return null;
